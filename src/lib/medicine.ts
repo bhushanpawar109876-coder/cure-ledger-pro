@@ -5,6 +5,7 @@ export interface Medicine {
   quantity: number;
   expiryDate: string; // ISO date string
   addedAt: string;
+  familyMemberId?: string | null;
 }
 
 export type ExpiryStatus = 'expired' | 'critical' | 'warning' | 'safe';

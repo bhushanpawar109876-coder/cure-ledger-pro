@@ -7,9 +7,10 @@ interface MedicineCardProps {
   medicine: Medicine;
   onDelete: (id: string) => void;
   index: number;
+  familyMemberName?: string;
 }
 
-export function MedicineCard({ medicine, onDelete, index }: MedicineCardProps) {
+export function MedicineCard({ medicine, onDelete, index, familyMemberName }: MedicineCardProps) {
   const status = getExpiryStatus(medicine.expiryDate);
   const days = getDaysUntilExpiry(medicine.expiryDate);
 
@@ -42,6 +43,11 @@ export function MedicineCard({ medicine, onDelete, index }: MedicineCardProps) {
               </span>
             </div>
             <p className="text-sm text-muted-foreground mt-1.5">{daysText}</p>
+            {familyMemberName && (
+              <span className="inline-flex items-center gap-1 mt-1 text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
+                {familyMemberName}
+              </span>
+            )}
           </div>
         </div>
         <div className="flex flex-col items-end gap-2 shrink-0">
