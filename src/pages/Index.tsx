@@ -1,12 +1,13 @@
 import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Shield, Download, Search, Pill } from 'lucide-react';
+import { Shield, Download, Search, Pill, Recycle } from 'lucide-react';
 import { useMedicines } from '@/hooks/useMedicines';
 import { getExpiryStatus, getDaysUntilExpiry, exportToCSV } from '@/lib/medicine';
 import { MedicineCard } from '@/components/MedicineCard';
 import { AddMedicineDialog } from '@/components/AddMedicineDialog';
 import { FilterBar, FilterOption } from '@/components/FilterBar';
 import { ExpiryBadge } from '@/components/ExpiryBadge';
+import { DisposalGuideDialog } from '@/components/DisposalGuideDialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
@@ -53,13 +54,13 @@ const Index = () => {
               <div className="p-2 rounded-xl bg-primary text-primary-foreground">
                 <Shield size={24} />
               </div>
-              <span className="font-heading font-bold text-xl text-foreground">Cure Ledger</span>
+              <span className="font-heading font-bold text-xl text-foreground">MediTrack</span>
             </div>
             <h1 className="font-heading text-3xl md:text-4xl lg:text-5xl font-bold text-foreground leading-tight">
               Keep your medicines safe and effective
             </h1>
             <p className="mt-3 text-lg text-muted-foreground max-w-lg">
-              Log medicines, track expiry dates, and get timely alerts — all in one simple inventory.
+              Log medicines, track expiry dates, and get timely alerts — promoting household health safety.
             </p>
 
             {/* Feature bullets */}
@@ -75,6 +76,10 @@ const Index = () => {
               <div className="flex items-start gap-2">
                 <Download size={16} className="mt-0.5 text-primary shrink-0" />
                 <span>Export CSV and share your inventory.</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <Recycle size={16} className="mt-0.5 text-primary shrink-0" />
+                <span>Learn safe disposal practices for expired medicines.</span>
               </div>
             </div>
 
@@ -99,7 +104,10 @@ const Index = () => {
       <main className="container py-6 md:py-8 space-y-6">
         {/* Actions row */}
         <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
-          <AddMedicineDialog onAdd={addMedicine} />
+          <div className="flex items-center gap-2">
+            <AddMedicineDialog onAdd={addMedicine} />
+            <DisposalGuideDialog />
+          </div>
           <div className="flex items-center gap-2">
             <div className="relative flex-1 sm:w-64">
               <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
@@ -154,7 +162,7 @@ const Index = () => {
       {/* Footer */}
       <footer className="border-t border-border bg-card py-6">
         <div className="container text-center text-sm text-muted-foreground">
-          <p>Cure Ledger — Your personal medicine expiry tracker</p>
+          <p>MediTrack — Your personal medicine expiry tracker</p>
         </div>
       </footer>
     </div>
