@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Medicine } from '@/lib/medicine';
 
-const STORAGE_KEY = 'cure-ledger-medicines';
+const STORAGE_KEY = 'meditrack-medicines';
 
 const SAMPLE_MEDICINES: Medicine[] = [
   { id: '1', name: 'Paracetamol 500mg', batch: 'A123', quantity: 20, expiryDate: '2026-02-25', addedAt: new Date().toISOString() },
