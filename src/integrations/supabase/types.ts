@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      aadhaar_verifications: {
+        Row: {
+          created_at: string
+          id: string
+          user_id: string
+          verified: boolean
+          verified_at: string | null
+          verified_dob: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          user_id: string
+          verified?: boolean
+          verified_at?: string | null
+          verified_dob?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          user_id?: string
+          verified?: boolean
+          verified_at?: string | null
+          verified_dob?: string | null
+        }
+        Relationships: []
+      }
       family_members: {
         Row: {
           avatar_url: string | null
@@ -105,6 +132,36 @@ export type Database = {
           id?: string
           tos_accepted?: boolean
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      webauthn_credentials: {
+        Row: {
+          created_at: string
+          credential_id: string
+          device_name: string | null
+          id: string
+          public_key: string
+          sign_count: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          credential_id: string
+          device_name?: string | null
+          id?: string
+          public_key: string
+          sign_count?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          credential_id?: string
+          device_name?: string | null
+          id?: string
+          public_key?: string
+          sign_count?: number
           user_id?: string
         }
         Relationships: []
