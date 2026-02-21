@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Shield, Download, Search, Pill, Recycle, LogOut, UserCircle } from 'lucide-react';
+import { Shield, Download, Search, Pill, Recycle, LogOut, UserCircle, ScanLine, Fingerprint } from 'lucide-react';
 import { useMedicinesDB } from '@/hooks/useMedicinesDB';
 import { useFamilyMembers } from '@/hooks/useFamilyMembers';
 import { useAuth } from '@/hooks/useAuth';
@@ -12,6 +12,10 @@ import { ExpiryBadge } from '@/components/ExpiryBadge';
 import { DisposalGuideDialog } from '@/components/DisposalGuideDialog';
 import { FamilyMemberManager } from '@/components/FamilyMemberManager';
 import { FamilyMemberFilter } from '@/components/FamilyMemberFilter';
+import { BarcodeScannerDialog } from '@/components/BarcodeScannerDialog';
+import { WebAuthnDialog } from '@/components/WebAuthnDialog';
+import { AadhaarVerificationDialog } from '@/components/AadhaarVerificationDialog';
+import { VoiceAssistant } from '@/components/VoiceAssistant';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Navigate } from 'react-router-dom';
@@ -23,6 +27,43 @@ const Index = () => {
   const [filter, setFilter] = useState<FilterOption>('all');
   const [search, setSearch] = useState('');
   const [familyFilter, setFamilyFilter] = useState<string | null>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  // Voice command handler
+  const handleVoiceCommand = useCallback((command: string) => {
+    switch (command) {
+      case 'export_csv':
+        exportToCSV(medicines);
+        break;
+      case 'search':
+        searchRef.current?.focus();
+        break;
+      case 'logout':
+        signOut();
+        break;
+      case 'filter_all':
+        setFilter('all');
+        break;
+      case 'filter_expired':
+        setFilter('expired');
+        break;
+      // add_medicine, scan_medicine, disposal_guide are handled by clicking buttons
+      // For now we just log them — the voice assistant confirms via speech
+      default:
+        break;
+    }
+  }, [medicines, signOut]);
+
+  // Barcode scan handler
+  const handleScanComplete = useCallback((result: { code: string; medicineName?: string; mfgDate?: string; expiryDate?: string }) => {
+    addMedicine({
+      name: result.medicineName || `Scanned: ${result.code}`,
+      batch: result.code,
+      quantity: 1,
+      expiryDate: result.expiryDate || new Date(Date.now() + 365 * 86400000).toISOString().split('T')[0],
+      familyMemberId: null,
+    });
+  }, [addMedicine]);
 
   if (authLoading) return <div className="flex items-center justify-center min-h-screen bg-background"><div className="animate-pulse-gentle text-primary"><Shield size={48} /></div></div>;
   if (!user) return <Navigate to="/auth" replace />;
@@ -73,6 +114,7 @@ const Index = () => {
 
             <div className="mt-6 grid gap-2 text-sm text-muted-foreground">
               <div className="flex items-start gap-2"><Pill size={16} className="mt-0.5 text-primary shrink-0" /><span>Add medicines in seconds — name, batch, qty, expiry.</span></div>
+              <div className="flex items-start gap-2"><ScanLine size={16} className="mt-0.5 text-primary shrink-0" /><span>Scan barcodes to auto-fill medicine details.</span></div>
               <div className="flex items-start gap-2"><Search size={16} className="mt-0.5 text-primary shrink-0" /><span>Auto-sorted list with expiry badges and filters.</span></div>
               <div className="flex items-start gap-2"><Download size={16} className="mt-0.5 text-primary shrink-0" /><span>Export CSV and share your inventory.</span></div>
               <div className="flex items-start gap-2"><Recycle size={16} className="mt-0.5 text-primary shrink-0" /><span>Learn safe disposal practices for expired medicines.</span></div>
@@ -92,22 +134,30 @@ const Index = () => {
 
       {/* Main */}
       <main className="container py-6 md:py-8 space-y-6">
+        {/* Action row */}
         <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
           <div className="flex items-center gap-2 flex-wrap">
             <AddMedicineDialog onAdd={addMedicine} familyMembers={members} />
+            <BarcodeScannerDialog onScanComplete={handleScanComplete} />
             <FamilyMemberManager />
             <DisposalGuideDialog />
           </div>
           <div className="flex items-center gap-2">
             <div className="relative flex-1 sm:w-64">
               <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-              <Input placeholder="Search medicines..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9 min-h-[44px]" />
+              <Input ref={searchRef} placeholder="Search medicines..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9 min-h-[44px]" />
             </div>
             <Button variant="outline" onClick={() => exportToCSV(sortedMedicines)} className="gap-2 min-h-[44px] shrink-0" disabled={medicines.length === 0}>
               <Download size={16} />
               <span className="hidden sm:inline">Export CSV</span>
             </Button>
           </div>
+        </div>
+
+        {/* Security & verification row */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <WebAuthnDialog />
+          <AadhaarVerificationDialog />
         </div>
 
         <FilterBar active={filter} onChange={setFilter} counts={counts} />
@@ -137,6 +187,9 @@ const Index = () => {
           <p>MediTrack — Your personal medicine expiry tracker</p>
         </div>
       </footer>
+
+      {/* Floating voice assistant */}
+      <VoiceAssistant onCommand={handleVoiceCommand} />
     </div>
   );
 };
